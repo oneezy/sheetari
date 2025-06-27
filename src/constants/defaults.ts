@@ -8,25 +8,22 @@
 ├── /components
 │   ├── /header
 │   │   ├── mod.ts           # Header component logic
-│   │   └── types.ts         # Type definitions for header component
+│   │   └── types.ts         # Type definitions for headers
 │   ├── /data
 │   │   ├── mod.ts           # Data component logic
-│   │   └── types.ts         # Type definitions for data component
+│   │   └── types.ts         # Type definitions for data
 │   └── /error
 │       ├── mod.ts           # Error handling component
-│       └── types.ts         # Type definitions for error component
+│       └── types.ts         # Type definitions for errors
 │
 ├── /constants
-│   ├── api.ts               # API constants (e.g., URLs, headers)
-│   └── messages.ts          # Common messages and error strings
+│   ├── api.ts               # API constants (e.g., base URLs, response messages)
+│   └── regex.ts             # Regular expressions used in the project
 │
 ├── /utils
 │   ├── fetch.ts             # Utility functions for fetching data
 │   ├── parse.ts             # CSV parsing utilities
-│   └── validation.ts        # Input validation functions
-│
-├── /regex
-│   ├── patterns.ts          # Regular expressions used in the project
+│   └── validate.ts          # Input validation utilities
 │
 ├── /tests
 │   ├── api.test.ts          # Tests for API routes
@@ -35,4 +32,4 @@
 │
 ├── mod.ts                   # Main entry point for the Deno application
 ├── README.md                # Project documentation
-└── deps.ts                  # Dependency management
+└── deps.ts                 # Dependency management (if needed)
