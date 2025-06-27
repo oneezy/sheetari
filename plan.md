@@ -20,7 +20,7 @@ Accessing Google Sheets as live JSON is a hassle—especially for public sheets.
 * Public sheet → JSON in one hit
 * Flexible URL structure
 * Supports sheet name or index
-* `mode=row` or `mode=column`
+* `mode=row` or `mode=col`
 * `headerRange` and `dataRange` params
 * Optional dot notation for nested objects
 * JSON output only (clean, SvelteKit-friendly)
@@ -36,8 +36,8 @@ Accessing Google Sheets as live JSON is a hassle—especially for public sheets.
 ### Conceptual Data Model (ERD in words)
 
 * **Input**: Sheet ID, optional sheet name/index
-* **Transforms**: Range slicing, header detection, row/column mode, optional dot-notation parsing
-* **Output**: JSON array (or array with one object in column mode)
+* **Transforms**: Range slicing, header detection, row/col mode, optional dot-notation parsing
+* **Output**: JSON array (or array with one object in col mode)
 
 ### UI Design Principles
 
@@ -56,7 +56,7 @@ Accessing Google Sheets as live JSON is a hassle—especially for public sheets.
 
 **MVP**
 
-* One endpoint, row/column mode
+* One endpoint, row/col mode
 * URL param parsing
 * A1 and numeric range support
 
@@ -64,7 +64,7 @@ Accessing Google Sheets as live JSON is a hassle—especially for public sheets.
 
 * Format toggle (e.g., JSONL)
 * Optional metadata (sheet name, range used)
-* Column-mode validation/warnings
+* col-mode validation/warnings
 * Dot-notation key parsing for nested output
 
 **V2**
@@ -72,7 +72,7 @@ Accessing Google Sheets as live JSON is a hassle—especially for public sheets.
 * Rate limiting
 
 ### Risks & Mitigations
-* **Ambiguous column mode**: Require 2-column structure (key/value)
+* **Ambiguous col mode**: Require 2-col structure (key/value)
 
 ---
 
@@ -86,7 +86,7 @@ Accessing Google Sheets as live JSON is a hassle—especially for public sheets.
 4. Parse CSV into matrix (2D array)
 5. Apply headerRange and dataRange
 6. Handle `mode=row` → map headers to rows
-7. Handle `mode=column` → map key/value to object
+7. Handle `mode=col` → map key/value to object
 8. Create optional parse dot notation keys into nested objects
 9. Return JSON with proper CORS headers
 10. Add error handling: 404s, range errors, empty sheets
@@ -96,4 +96,4 @@ Accessing Google Sheets as live JSON is a hassle—especially for public sheets.
 
 * Use H2 for major sections
 * Bullets for params, responses, examples
-* Links like: [Try example](https://example.com/123456/Sheet1?mode=column)
+* Links like: [Try example](https://example.com/123456/Sheet1?mode=col)
