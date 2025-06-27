@@ -1,4 +1,4 @@
-# Deno Google Sheets to JSON
+# Google Sheets to JSON
 
 ### Elevator Pitch
 
@@ -27,7 +27,8 @@ Accessing Google Sheets as live JSON is a hassle—especially for public sheets.
 
 ### High-Level Tech Stack
 
-* **Deno 2.0**: Lightweight, fast, secure-by-default runtime
+* **Deno 2.0**: Lightweight, fast, secure-by-default runtime ()
+* **Hono**: Web Framework
 * **Deno Deploy**: To host API
 * **Native Fetch + Google Sheet CSV**: Avoids full Sheets API/auth
 * **URL Routing**: Dynamic params for sheet/tab targeting
@@ -79,14 +80,14 @@ Accessing Google Sheets as live JSON is a hassle—especially for public sheets.
 
 ### Build Sequence
 
-1. Set up Deno project and routing
+1. Set up Deno project with Hono
 2. Parse URL params: sheet ID, tab name/index
 3. Fetch public CSV from Google Sheets export URL
 4. Parse CSV into matrix (2D array)
 5. Apply headerRange and dataRange
 6. Handle `mode=row` → map headers to rows
 7. Handle `mode=column` → map key/value to object
-8. Optional: parse dot notation keys into nested objects
+8. Create optional parse dot notation keys into nested objects
 9. Return JSON with proper CORS headers
 10. Add error handling: 404s, range errors, empty sheets
 11. Write tests for both modes and dot parsing
