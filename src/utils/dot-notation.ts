@@ -1,7 +1,7 @@
 type JsonObject = Record<string, unknown>;
 
-export function parseDotNotation(data: Record<string, any>): Record<string, any> {
-  const result: Record<string, any> = {};
+export function parseDotNotation(data: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
 
   for (const key in data) {
     let current = result;
@@ -14,7 +14,7 @@ export function parseDotNotation(data: Record<string, any>): Record<string, any>
       if (!current[part] || typeof current[part] !== 'object') {
         current[part] = {};
       }
-      current = current[part];
+      current = current[part] as Record<string, unknown>;
     }
 
     let value = data[key];
