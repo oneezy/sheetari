@@ -1,3 +1,5 @@
+![Sheetari](static/sheetari.png)
+
 # Sheetari
 
 Turn any public Google Sheet into structured JSON using a clean, flexible API. Just plug in the sheet ID and get instant JSON back—ideal for devs, no-coders, and frontend frameworks like SvelteKit.
