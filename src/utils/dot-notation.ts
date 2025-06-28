@@ -1,20 +1,30 @@
 type JsonObject = Record<string, unknown>;
 
-export function parseDotNotation(data: JsonObject): JsonObject {
-  const result: JsonObject = {};
+export function parseDotNotation(data: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {};
 
   for (const key in data) {
-    let current: JsonObject = result;
+    let current = result;
     const parts = key.split('.');
     const lastPart = parts.pop();
+
     if (!lastPart) continue;
 
     for (const part of parts) {
-      current[part] = current[part] || {};
-      current = current[part] as JsonObject;
+      if (!current[part] || typeof current[part] !== 'object') {
+        current[part] = {};
+      }
+      current = current[part];
     }
 
-    current[lastPart] = data[key];
+    let value = data[key];
+    if (value === 'TRUE') {
+      value = true;
+    } else if (value === 'FALSE') {
+      value = false;
+    }
+
+    current[lastPart] = value;
   }
 
   return result;

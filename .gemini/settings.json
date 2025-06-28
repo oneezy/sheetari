@@ -1,8 +1,12 @@
 {
   "preferredEditor": "vscode",
   "contextFileName": [
+    // DOCUMENTATION
     ".vnow/denoland/docs@latest/runtime.md",
-    ".vnow/denoland/docs@latest/deploy.md",
-    ".vnow/honojs/website@latest/docs.md"
+    ".vnow/honojs/website@latest/docs.md",
+    // ".vnow/denoland/docs@latest/deploy.md",
+    
+    // DATA
+    "instructions/DATA.md"
   ]
 }
