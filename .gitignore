@@ -1,4 +1,6 @@
 .gemini/
 .vnow/
 .vscode/
+instructions/
+node_modules/
 tests/
