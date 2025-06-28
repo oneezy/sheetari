@@ -6,5 +6,13 @@
   "imports": {
     "@hono/hono": "jsr:@hono/hono@^4.8.3",
     "@std/assert": "jsr:@std/assert@^1.0.13"
+  },
+  "deploy": {
+    "project": "94a621d9-a838-4ec1-b09c-67343e56da1b",
+    "exclude": [
+      "**/node_modules"
+    ],
+    "include": [],
+    "entrypoint": "src\\index.ts"
   }
 }
