@@ -7,7 +7,9 @@ export function parseFlexibleRange(range: string, maxRows: number = 1000, maxCol
     throw new Error(`Invalid range notation: ${range}. Must contain ':'`);
   }
 
-  const [start, end] = range.split(':');
+  // Normalize to uppercase for parsing
+  const normalizedRange = range.toUpperCase();
+  const [start, end] = normalizedRange.split(':');
   
   // Handle different flexible range patterns
   if (isColumnOnlyRange(start, end)) {

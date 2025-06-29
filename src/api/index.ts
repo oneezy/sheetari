@@ -10,12 +10,14 @@ api.get('/:sheetId/:sheetIdentifier/', handleSheetRequest)
 
 async function handleSheetRequest(c: Context) {
   const { sheetId, sheetIdentifier } = c.req.param()
-  const { mode, dot, headerRange, dataRange, range } = c.req.query()
+  const { mode, dot, headerRange, dataRange, range, group } = c.req.query()
 
   try {
     let gid: string;
     const detectedMode = (mode as 'row' | 'col') || 'row';
-    const useDotNotation = dot !== 'false'; // Default to true, disable with dot=false
+    const groupMode = (group as 'dot' | 'case' | 'none') || 'dot'; // Default to dot
+    // If group is explicitly set, use it; otherwise fall back to dot notation logic
+    const useDotNotation = group ? false : (dot !== 'false'); // Default to true only if no group specified
 
     if (sheetIdentifier === undefined || sheetIdentifier === '') {
       // Default to the first sheet by using gid=0
@@ -37,7 +39,8 @@ async function handleSheetRequest(c: Context) {
       headerRange,
       dataRange,
       range,
-      dotNotation: useDotNotation
+      dotNotation: useDotNotation,
+      groupMode
     })
     
     return c.json(json)

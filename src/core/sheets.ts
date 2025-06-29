@@ -1,6 +1,6 @@
 import { parseCsv } from '../utils/csv.ts';
-import { parseDotNotation } from '../utils/dot-notation.ts';
 import { parseA1Notation } from '../utils/a1-notation.ts';
+import { parseGroupedData, parseRowGrouping } from '../utils/grouping.ts';
 
 interface FetchSheetParams {
   sheetId: string;
@@ -10,10 +10,11 @@ interface FetchSheetParams {
   dataRange?: string;
   range?: string; // New: single range parameter
   dotNotation?: boolean;
+  groupMode?: 'dot' | 'case' | 'none';
 }
 
 export async function fetchSheet(params: FetchSheetParams) {
-  const { sheetId, gid, mode = 'row', headerRange, dataRange, range, dotNotation } = params;
+  const { sheetId, gid, mode = 'row', headerRange, dataRange, range, dotNotation, groupMode = 'dot' } = params;
 
   // Determine if gid is a numeric GID or a sheet name
   const isNumericGid = /^\d+$/.test(gid);
@@ -87,7 +88,7 @@ export async function fetchSheet(params: FetchSheetParams) {
         }
         return acc;
       }, {} as Record<string, string | null>);
-      return dotNotation ? parseDotNotation(colJson) : colJson;
+      return parseGroupedData(colJson, dotNotation ? 'dot' : groupMode);
     } else {
       // For row mode: first row is header, rest are data
       headerData = rangeMatrix[0] || [];
@@ -118,7 +119,7 @@ export async function fetchSheet(params: FetchSheetParams) {
         return acc;
       }, {} as Record<string, string | null>);
       
-      return dotNotation ? parseDotNotation(colJson) : colJson;
+      return parseGroupedData(colJson, dotNotation ? 'dot' : groupMode);
     } else {
       // Row mode with separate header and data ranges
       headerData = matrix[0];
@@ -140,13 +141,6 @@ export async function fetchSheet(params: FetchSheetParams) {
   }
 
   // Process row mode data (if we reach here, we're in row mode)
-  const rowJson = tableData.map(row => {
-    const rowData = headerData.reduce((acc, key, i) => {
-      acc[key] = row[i] || null;
-      return acc;
-    }, {} as Record<string, string | null>);
-    return dotNotation ? parseDotNotation(rowData) : rowData;
-  });
-
-  return rowJson;
+  const finalGroupMode = dotNotation ? 'dot' : groupMode;
+  return parseRowGrouping(tableData, headerData, finalGroupMode);
 }
