@@ -6,8 +6,9 @@ Turn any public Google Sheet into structured JSON using a clean, flexible API. J
 
 - ✅ **Public sheets only** - No authentication required
 - ✅ **Automatic type conversion** - Booleans, numbers, null values
-- ✅ **Dot notation parsing** - `user.name` → `{ user: { name: "value" } }`
-- ✅ **Flexible modes** - Row arrays or column objects
+- ✅ **Smart grouping** - Dot notation, case-based sections, or flat structure
+- ✅ **Flexible range selection** - Extract specific rows, columns, or ranges
+- ✅ **Multiple output modes** - Row arrays or column objects
 - ✅ **Error handling** - Clear messages for missing sheets
 - ✅ **CORS enabled** - Use from any frontend framework
 - ✅ **Edge deployed** - Fast response times worldwide
@@ -19,10 +20,70 @@ Turn any public Google Sheet into structured JSON using a clean, flexible API. J
 ### Parameters
 
 - `mode`: `row` or `col` (default: `row`)
-- `dot`: `true` or `false` (default: `true` - enables dot notation parsing)
+- `group`: `dot`, `case`, or `none` (default: `dot`) - Controls output structure and grouping
+- `dot`: `true` or `false` (default: `true` - enables dot notation parsing, ignored if `group` is specified)
 - `range`: Single range parameter (e.g., `A1:C10`, `A:Z`, `B2:Z`, `2:10`)
 - `headerRange`: Range for headers (row mode: header rows, col mode: key column)
 - `dataRange`: Range for data (row mode: data rows, col mode: value columns)
+
+**Parameter Priority:** When both `group` and `dot` are specified, `group` takes precedence.
+
+### Grouping Modes
+
+- **`group=dot`**: Parses dot notation keys like `user.name` into nested objects
+- **`group=case`**: Groups columns/rows based on uppercase headers (e.g., `GROUP1`, `SECTION_A`)
+- **`group=none`**: Returns flat structure with no grouping or nesting
+
+#### Case-Based Grouping (`group=case`)
+
+Case-based grouping automatically detects uppercase headers and groups subsequent columns/rows under them:
+
+**Row Mode Example:**
+```
+| GROUP1 | col1     | col2     | GROUP2 | col3     | col4     |
+|--------|----------|----------|--------|----------|----------|
+| 0 / 3  | value1   | value2   | 0 / 2  | value3   | value4   |
+```
+
+**Output:**
+```json
+[
+  {
+    "group1": {
+      "col1": "value1",
+      "col2": "value2"
+    },
+    "group2": {
+      "col3": "value3", 
+      "col4": "value4"
+    }
+  }
+]
+```
+
+**Column Mode Example:**
+```
+| GROUP1     | metadata |
+| col1       | value1   |
+| col2       | value2   |
+| GROUP2     | metadata |
+| col3       | value3   |
+```
+
+**Output:**
+```json
+{
+  "group1": {
+    "col1": "value1",
+    "col2": "value2"
+  },
+  "group2": {
+    "col3": "value3"
+  }
+}
+```
+
+Note: Group header cells (containing metadata like "0 / 3") are automatically filtered out from the final output.
 
 ### Flexible Range Notation
 
@@ -105,6 +166,27 @@ https://sheetari.deno.dev/16fcvNEt6vPOiuOtQmP3Nji97_KgU-pffEBf6IbELeE0/col?mode=
 **Separate header and data ranges:**
 ```
 https://sheetari.deno.dev/16fcvNEt6vPOiuOtQmP3Nji97_KgU-pffEBf6IbELeE0/row?headerRange=A1:C1&dataRange=A3:C10
+```
+
+### 6. Case-Based Grouping Examples
+
+**Group columns by uppercase headers:**
+```
+# Input: GROUP1 | col1 | col2 | GROUP2 | col3 | col4
+# Output: { "group1": { "col1": "...", "col2": "..." }, "group2": { "col3": "...", "col4": "..." } }
+https://sheetari.deno.dev/YOUR_SHEET_ID/sheet?group=case
+```
+
+**Disable all grouping:**
+```
+# Returns flat structure with no nesting
+https://sheetari.deno.dev/YOUR_SHEET_ID/sheet?group=none
+```
+
+**Traditional dot notation grouping:**
+```
+# Parses user.name -> { user: { name: "value" } }
+https://sheetari.deno.dev/YOUR_SHEET_ID/sheet?group=dot
 ```
 
 ## All Demo Sheets
