@@ -16,6 +16,35 @@ Turn any public Google Sheet into structured JSON using a clean, flexible API. J
 
 `https://sheetari.deno.dev/<sheetId>/<sheetName>`
 
+### Parameters
+
+- `mode`: `row` or `col` (default: `row`)
+- `dot`: `true` or `false` (default: `true` - enables dot notation parsing)
+- `range`: Single range parameter (e.g., `A1:C10`, `A:Z`, `B2:Z`, `2:10`)
+- `headerRange`: Range for headers (row mode: header rows, col mode: key column)
+- `dataRange`: Range for data (row mode: data rows, col mode: value columns)
+
+### Flexible Range Notation
+
+Sheetari supports flexible A1 notation for precise data extraction:
+
+| Pattern | Description | Example |
+|---------|-------------|---------|
+| `A1:C10` | Standard range | Rows 1-10, columns A-C |
+| `A:Z` | All rows, columns A-Z | Full column range |
+| `B2:Z` | Rows 2+, columns B-Z | Skip first row |
+| `2:10` | Rows 2-10, all columns | Full row range |
+| `A:` | All rows, column A to end | Open-ended columns |
+| `:Z` | All rows, first column to Z | Open-ended rows |
+
+### Range Parameters
+
+- **`range`**: Single parameter that defines the data rectangle
+  - *Row mode*: First row becomes headers, rest become data
+  - *Column mode*: First column becomes keys, second becomes values
+- **`headerRange` + `dataRange`**: Separate control over headers and data
+  - Useful when headers and data are in non-contiguous ranges
+
 ### Demo Sheet
 
 Google Sheet: [https://docs.google.com/spreadsheets/d/16fcvNEt6vPOiuOtQmP3Nji97_KgU-pffEBf6IbELeE0](https://docs.google.com/spreadsheets/d/16fcvNEt6vPOiuOtQmP3Nji97_KgU-pffEBf6IbELeE0)
@@ -49,6 +78,33 @@ https://sheetari.deno.dev/16fcvNEt6vPOiuOtQmP3Nji97_KgU-pffEBf6IbELeE0/col?mode=
 ### 4. Columns Nested (Dot Notation)
 ```
 https://sheetari.deno.dev/16fcvNEt6vPOiuOtQmP3Nji97_KgU-pffEBf6IbELeE0/col-nested?mode=col
+```
+
+### 5. Flexible Range Examples
+
+**Extract specific columns:**
+```
+https://sheetari.deno.dev/16fcvNEt6vPOiuOtQmP3Nji97_KgU-pffEBf6IbELeE0/row?range=A:B
+```
+
+**Skip headers (start from row 2):**
+```
+https://sheetari.deno.dev/16fcvNEt6vPOiuOtQmP3Nji97_KgU-pffEBf6IbELeE0/row?range=A2:C
+```
+
+**Extract specific rows:**
+```
+https://sheetari.deno.dev/16fcvNEt6vPOiuOtQmP3Nji97_KgU-pffEBf6IbELeE0/row?range=2:4
+```
+
+**Column mode with specific range:**
+```
+https://sheetari.deno.dev/16fcvNEt6vPOiuOtQmP3Nji97_KgU-pffEBf6IbELeE0/col?mode=col&range=A1:B10
+```
+
+**Separate header and data ranges:**
+```
+https://sheetari.deno.dev/16fcvNEt6vPOiuOtQmP3Nji97_KgU-pffEBf6IbELeE0/row?headerRange=A1:C1&dataRange=A3:C10
 ```
 
 ## All Demo Sheets

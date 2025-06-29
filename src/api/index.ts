@@ -10,15 +10,12 @@ api.get('/:sheetId/:sheetIdentifier/', handleSheetRequest)
 
 async function handleSheetRequest(c: Context) {
   const { sheetId, sheetIdentifier } = c.req.param()
-  const { mode, dot } = c.req.query()
+  const { mode, dot, headerRange, dataRange, range } = c.req.query()
 
   try {
     let gid: string;
     const detectedMode = (mode as 'row' | 'col') || 'row';
     const useDotNotation = dot !== 'false'; // Default to true, disable with dot=false
-
-    // Debug: Log the query parameters
-    console.log('Query params:', { mode, dot, useDotNotation });
 
     if (sheetIdentifier === undefined || sheetIdentifier === '') {
       // Default to the first sheet by using gid=0
@@ -37,6 +34,9 @@ async function handleSheetRequest(c: Context) {
       sheetId,
       gid,
       mode: detectedMode,
+      headerRange,
+      dataRange,
+      range,
       dotNotation: useDotNotation
     })
     

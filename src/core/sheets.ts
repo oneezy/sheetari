@@ -8,11 +8,12 @@ interface FetchSheetParams {
   mode?: 'row' | 'col';
   headerRange?: string;
   dataRange?: string;
+  range?: string; // New: single range parameter
   dotNotation?: boolean;
 }
 
 export async function fetchSheet(params: FetchSheetParams) {
-  const { sheetId, gid, mode = 'row', headerRange, dataRange, dotNotation } = params;
+  const { sheetId, gid, mode = 'row', headerRange, dataRange, range, dotNotation } = params;
 
   // Determine if gid is a numeric GID or a sheet name
   const isNumericGid = /^\d+$/.test(gid);
@@ -57,36 +58,88 @@ export async function fetchSheet(params: FetchSheetParams) {
     throw new Error('No data found in CSV');
   }
 
-  if (mode === 'col') {
-    let colData = matrix;
-    if (dataRange) {
-        const { startRow, endRow, startCol, endCol } = parseA1Notation(dataRange);
-        colData = matrix.slice(startRow - 1, endRow).map(row => row.slice(startCol - 1, endCol));
+  // Determine matrix dimensions for flexible range parsing
+  const maxRows = matrix.length;
+  const maxCols = matrix[0]?.length || 0;
+
+  // Process range parameters with precedence: range > headerRange/dataRange
+  let headerData: string[];
+  let tableData: string[][];
+
+  if (range) {
+    // Single range parameter takes precedence
+    const { startRow, endRow, startCol, endCol } = parseA1Notation(range, maxRows, maxCols);
+    const rangeMatrix = matrix.slice(startRow - 1, endRow).map(row => row.slice(startCol - 1, endCol));
+    
+    if (mode === 'col') {
+      // For column mode: first column is keys, second is values
+      const colJson = rangeMatrix.reduce((acc, row) => {
+        const key = row[0];
+        const value = row[1];
+        
+        // Include all entries with valid keys
+        if (key) {
+          // Only skip section headers that are all uppercase and equal
+          const isLikelySectionHeader = key === value && key.toUpperCase() === key && key.length > 1;
+          if (!isLikelySectionHeader) {
+            acc[key] = value || null;
+          }
+        }
+        return acc;
+      }, {} as Record<string, string | null>);
+      return dotNotation ? parseDotNotation(colJson) : colJson;
+    } else {
+      // For row mode: first row is header, rest are data
+      headerData = rangeMatrix[0] || [];
+      tableData = rangeMatrix.slice(1);
     }
-    const colJson = colData.reduce((acc, row) => {
-      if(row[0]) acc[row[0]] = row[1] || null;
-      return acc;
-    }, {} as Record<string, string | null>);
-    return dotNotation ? parseDotNotation(colJson) : colJson;
-  }
-
-  // mode === 'row'
-  let headerData = matrix[0];
-  let tableData = matrix.slice(1);
-
-  if (headerRange) {
-    const { startRow, endRow, startCol, endCol } = parseA1Notation(headerRange);
-    headerData = matrix.slice(startRow - 1, endRow)[0].slice(startCol - 1, endCol);
-  }
-
-  if (dataRange) {
-    const { startRow, endRow, startCol, endCol } = parseA1Notation(dataRange);
-    tableData = matrix.slice(startRow - 1, endRow).map(row => row.slice(startCol - 1, endCol));
   } else {
-    const headerRowIndex = headerRange ? parseA1Notation(headerRange).endRow : 1;
-    tableData = matrix.slice(headerRowIndex);
+    // Use headerRange and dataRange separately
+    if (mode === 'col') {
+      let colData = matrix;
+      
+      if (dataRange) {
+        const { startRow, endRow, startCol, endCol } = parseA1Notation(dataRange, maxRows, maxCols);
+        colData = matrix.slice(startRow - 1, endRow).map(row => row.slice(startCol - 1, endCol));
+      }
+      
+      const colJson = colData.reduce((acc, row) => {
+        const key = row[0];
+        const value = row[1];
+        
+        // Include all entries with valid keys
+        if (key) {
+          // Only skip section headers that are all uppercase and equal
+          const isLikelySectionHeader = key === value && key.toUpperCase() === key && key.length > 1;
+          if (!isLikelySectionHeader) {
+            acc[key] = value || null;
+          }
+        }
+        return acc;
+      }, {} as Record<string, string | null>);
+      
+      return dotNotation ? parseDotNotation(colJson) : colJson;
+    } else {
+      // Row mode with separate header and data ranges
+      headerData = matrix[0];
+      tableData = matrix.slice(1);
+
+      if (headerRange) {
+        const { startRow, endRow, startCol, endCol } = parseA1Notation(headerRange, maxRows, maxCols);
+        headerData = matrix.slice(startRow - 1, endRow)[0].slice(startCol - 1, endCol);
+      }
+
+      if (dataRange) {
+        const { startRow, endRow, startCol, endCol } = parseA1Notation(dataRange, maxRows, maxCols);
+        tableData = matrix.slice(startRow - 1, endRow).map(row => row.slice(startCol - 1, endCol));
+      } else {
+        const headerRowIndex = headerRange ? parseA1Notation(headerRange, maxRows, maxCols).endRow : 1;
+        tableData = matrix.slice(headerRowIndex);
+      }
+    }
   }
 
+  // Process row mode data (if we reach here, we're in row mode)
   const rowJson = tableData.map(row => {
     const rowData = headerData.reduce((acc, key, i) => {
       acc[key] = row[i] || null;
